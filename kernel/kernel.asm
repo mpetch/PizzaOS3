@@ -1,6 +1,8 @@
 ; 32-bit protected mode code
 BITS 32
+
 global _start
+extern kernel_main
 
 %define CODE_SEG 0x08
 %define DATA_SEG 0x10
@@ -25,6 +27,8 @@ _start:
     mov esi, msg_pm
     call print_string_pm
     
+    call kernel_main
+
     jmp $                   ; Hang
 
 print_string_pm:
