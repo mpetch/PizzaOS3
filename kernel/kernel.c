@@ -19,10 +19,16 @@ void terminal_putchar(uint16_t x , uint16_t y , char c , char color){
 
 //KEEPS TRACK OF CURSOR POSITION
 void terminal_writechar(char c , char color){
-    terminal_putchar(terminal_col , terminal_row , c , color);
-    if (++terminal_col == VGA_WIDTH){
+    if (c == '\n'){
         terminal_col = 0;
         terminal_row ++;
+    }
+    else{  
+        terminal_putchar(terminal_col , terminal_row , c , color);
+        if (++terminal_col == VGA_WIDTH){
+            terminal_col = 0;
+            terminal_row ++;
+        }
     }
 }
 
@@ -58,5 +64,5 @@ void print(const char* str){
 // MAIN FUNCTION (CALLED BY KERNEL.ASM)
 void kernel_main() {
     terminal_initialize();
-    print("Hello World");
+    print("Hello World \n This is my os ");
 }
