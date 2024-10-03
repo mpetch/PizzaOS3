@@ -31,7 +31,7 @@ start:
     or eax, 1
     mov cr0, eax
     
-    ;jmp CODE_SEG:init_pm    ; Far jump to 32-bit code
+    jmp CODE_SEG:init_pm    ; Far jump to 32-bit code
     jmp $
 
 ; Function to print a string in real mode
@@ -82,6 +82,74 @@ load_gdt:
 
 ; Define the message to print
 msg_real_mode: db "Now in 16-bit Real Mode!", 13, 10, 0
+
+BITS 32
+init_pm:
+    mov eax, 1          ; 0 is the boot sector, 1 is the first sector of the kernel
+    mov ecx, 100        ; 100 (Total sectors to read) sectors to read
+    mov edi, 0x0100000  ; Load the kernel at 0x100000
+    call ata_lba_read
+    jmp CODE_SEG:0x0100000
+
+ata_lba_read:
+    mov ebx, eax        ; Backup the LBA
+
+    ; Send the highest 8 bits of the LBA to the hard disk controller
+    shr eax, 24
+    or al, 0xE0        ; Selects the master drive
+    mov dx, 0x1F6
+    out dx, al
+    ; Finished sending the highest 8 bits of the LBA
+
+    ; Send the total sectors to read to the hard disk controller
+    mov eax, ecx
+    mov dx, 0x1F2
+    out dx, al
+    ; Finished sending the total sectors to read
+
+    ; Send more bits of the LBA
+    mov eax, ebx        ; Restore the LBA
+    mov dx, 0x1F3       ; Port to send the LBA
+    out dx, al
+    ; Finished sending more  bits of the LBA
+
+    ; Send the more bits of the LBA
+    mov eax, ebx        ; Restore the LBA
+    mov dx, 0x1F4       ; Port to send the LBA
+    shr eax, 8
+    out dx, al
+    ; Finished sending more bits of the LBA
+    
+    ; Send the highest 16 bits of the LBA
+    mov eax, ebx        ; Restore the LBA
+    mov dx, 0x1F5       ; Port to send the LBA
+    shr eax, 16
+    out dx, al
+    ; Finished sending the highest 16 bits of the LBA   
+
+    mov dx, 0x1F7       ; Command port
+    mov al, 0x20         ; Read with retry
+    out dx, al
+
+    ; Read all sectors into memory
+.next_sector:
+    push ecx
+
+    ; checking if we need to READ
+.try_again:
+    mov dx, 0x1F7
+    in al, dx
+    test al, 8
+    jz .try_again
+
+   ; read 256 words at a time
+   mov ecx, 256
+   mov dx, 0x1F0
+   rep insw
+   pop ecx
+   loop .next_sector
+   ret
+    
 
 ; Pad the boot sector to 510 bytes and add boot signature
 times 510 - ($ - $$) db 0

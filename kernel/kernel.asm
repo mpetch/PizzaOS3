@@ -1,12 +1,11 @@
 ; 32-bit protected mode code
-
-
 BITS 32
+global _start
 
 %define CODE_SEG 0x08
 %define DATA_SEG 0x10
 
-init_pm:
+_start:
     mov ax, DATA_SEG
     mov ds, ax
     mov ss, ax
