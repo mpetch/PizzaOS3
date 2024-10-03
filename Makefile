@@ -18,4 +18,5 @@ all: ./bin/boot.bin ./bin/kernel.bin
 	nasm -f elf32 -g -o ./build/kernel.asm.o ./kernel/kernel.asm
 
 clean:
-	rm -f ./bin/*.bin
+	rm -rf ./bin/*.bin
+	rm -rf ./build/*.o

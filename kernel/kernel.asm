@@ -13,7 +13,7 @@ _start:
     mov fs, ax
     mov gs, ax
     
-    mov ebp, 0x90000        ; Set up stack
+    mov ebp, 0x0200000        ; Set up stack
     mov esp, ebp
     
     ; Clear the screen
@@ -43,3 +43,5 @@ print_string_pm:
     ret
 
 msg_pm: db "Now in 32-bit Protected Mode!", 0
+
+times 512 - ($ - $$) db 0
