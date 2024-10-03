@@ -1,0 +1,9 @@
+#ifndef CONFIG_H
+#define CONFIG_H
+
+#define PIZZAOS_TOTAL_INTERRUPTS 512
+
+#define KERNEL_CODE_SEGMENT 0x08
+#define KERNEL_DATA_SEGMENT 0x10
+
+#endif

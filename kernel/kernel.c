@@ -1,6 +1,7 @@
 #include "kernel.h"
 #include <stdint.h>
 #include <stddef.h>
+#include "idt/idt.h"
 
 uint16_t* video_mem = 0;
 uint16_t terminal_row = 0;
@@ -61,8 +62,15 @@ void print(const char* str){
         terminal_writechar(str[i], 15);
 }
 
+extern void problem();
+
 // MAIN FUNCTION (CALLED BY KERNEL.ASM)
 void kernel_main() {
     terminal_initialize();
     print("Hello World \n This is my os ");
+    
+    // Initialize idt
+    idt_init();
+
+    problem();
 }
