@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include "idt/idt.h"
+#include "io/io.h"
 
 uint16_t* video_mem = 0;
 uint16_t terminal_row = 0;
@@ -62,7 +63,7 @@ void print(const char* str){
         terminal_writechar(str[i], 15);
 }
 
-extern void problem();
+
 
 // MAIN FUNCTION (CALLED BY KERNEL.ASM)
 void kernel_main() {
@@ -72,5 +73,4 @@ void kernel_main() {
     // Initialize idt
     idt_init();
 
-    problem();
 }

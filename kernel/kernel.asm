@@ -3,7 +3,6 @@ BITS 32
 
 global _start
 extern kernel_main
-extern problem
 
 %define CODE_SEG 0x08
 %define DATA_SEG 0x10
@@ -49,8 +48,5 @@ print_string_pm:
 
 msg_pm: db "Now in 32-bit Protected Mode!", 0
 
-problem:
-    mov eax , 0
-    div eax
 
 times 512 - ($ - $$) db 0
