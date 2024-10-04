@@ -9,7 +9,6 @@ global enable_interrupts
 global disable_interrupts
 global no_interrupt
 
-
 enable_interrupts:
     sti
     ret

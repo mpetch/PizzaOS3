@@ -27,14 +27,17 @@ _start:
     mov esi, msg_pm
     call print_string_pm
 
-    ; Remap the master PIC
+   ; Remap the master PIC
     mov al, 00010001b
-    out 0x20, al           ; Send the command to the master PIC 
+    out 0x20, al           ; Send the command to the master PIC
 
     mov al, 0x20           ; Interrupt 0x20 is the starting point of the master PIC interrupt
     out 0x21, al           ; Send the command to the master PIC
 
-    mov al, 00000001b      ; Put the master PIC in 8086 mode
+    mov al, 00000100b      ; Tell Master PIC that there is a slave PIC at IRQ2
+    out 0x21, al           ; Send the command to the master PIC
+
+    mov al, 0000001b       ; Put the master PIC in 8086 mode
     out 0x21, al           ; Send the command to the master PIC
 
     ;End of PIC remapping

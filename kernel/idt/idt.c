@@ -13,7 +13,7 @@ extern void int21h();
 extern void no_interrupt();
 
 void no_interrupt_handler() {
-    print("Unhandled interrupt\n");
+    //print("Unhandled interrupt\n");
     outb(0x20, 0x20);
 }
 
