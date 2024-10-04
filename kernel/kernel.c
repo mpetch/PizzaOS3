@@ -63,14 +63,18 @@ void print(const char* str){
         terminal_writechar(str[i], 15);
 }
 
-
-
 // MAIN FUNCTION (CALLED BY KERNEL.ASM)
 void kernel_main() {
     terminal_initialize();
-    print("Hello World \n This is my os ");
+    print("Hello World \n This is my os \n");
     
-    // Initialize idt
+    print("Initializing IDT...\n");
     idt_init();
+    print("IDT initialized.\n");
 
+    print("Enabling interrupts...\n");
+    enable_interrupts();
+    print("Interrupts enabled.\n");
+
+    print("Kernel initialization complete.\n");
 }

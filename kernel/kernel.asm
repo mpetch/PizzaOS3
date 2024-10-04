@@ -38,7 +38,7 @@ _start:
     out 0x21, al           ; Send the command to the master PIC
 
     ;End of PIC remapping
-
+    
     call kernel_main
 
     jmp $                   ; Hang
