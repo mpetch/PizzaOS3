@@ -23,6 +23,8 @@ extern struct idt_desc idt[256];
 extern struct idtr_desc idtr;
 
 void idt_init();
+void enable_interrupts();
+void disable_interrupts();  
 
 
 

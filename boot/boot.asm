@@ -85,6 +85,14 @@ msg_real_mode: db "Now in 16-bit Real Mode!", 13, 10, 0
 
 BITS 32
 init_pm:
+    mov ax, DATA_SEG    ; Load data segment selector
+    mov ds, ax          ; Set DS register
+    mov es, ax          ; Set ES register
+    mov fs, ax          ; Set FS register
+    mov gs, ax          ; Set GS register
+    mov ss, ax          ; Set SS register
+    mov esp, 0x7C00   ; Set stack pointer (example address)
+
     mov eax, 1          ; 0 is the boot sector, 1 is the first sector of the kernel
     mov ecx, 100        ; 100 (Total sectors to read) sectors to read
     mov edi, 0x0100000  ; Load the kernel at 0x100000
