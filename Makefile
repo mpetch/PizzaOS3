@@ -1,4 +1,4 @@
-FILES = ./build/kernel.asm.o ./build/kernel.o ./build/idt/idt.asm.o ./build/idt/idt.o ./build/memory/memory.o ./build/io/io.asm.o ./build/memory/heap/heap.o
+FILES = ./build/kernel.asm.o ./build/kernel.o ./build/idt/idt.asm.o ./build/idt/idt.o ./build/memory/memory.o ./build/io/io.asm.o ./build/memory/heap/heap.o ./build/memory/heap/kheap.o
 INCLUDES = -I./kernel/
 FLAGS = -g -ffreestanding -falign-jumps -falign-loops -falign-functions -falign-labels -fstrength-reduce -fomit-frame-pointer -finline-functions -Wno-unused-function -fno-builtin -Werror -Wno-unused-label -Wno-unused-parameter -nostdlib -nostartfiles -nodefaultlibs -Wall -O0	 -Iinc
 
@@ -36,6 +36,9 @@ all: ./bin/boot.bin ./bin/kernel.bin
 
 ./build/memory/heap/heap.o: ./kernel/memory/heap/heap.c
 	i686-elf-gcc $(INCLUDES) $(FLAGS) -std=gnu99 -c -o ./build/memory/heap/heap.o ./kernel/memory/heap/heap.c
+
+./build/memory/heap/kheap.o: ./kernel/memory/heap/kheap.c
+	i686-elf-gcc $(INCLUDES) $(FLAGS) -std=gnu99 -c -o ./build/memory/heap/kheap.o ./kernel/memory/heap/kheap.c
 
 
 clean:
