@@ -79,8 +79,15 @@ void kernel_main() {
     enable_interrupts();
     print("Interrupts enabled.\n");
 
-    void* ptr = kmalloc(50);
-    if(ptr){}
+    void* ptr1 = kmalloc(50);
+    void* ptr2 = kmalloc(5000);
+    void* ptr3 = kmalloc(5600);
+    if(ptr1){}
+    kfree(ptr1);
+    void* ptr4 = kmalloc(50);
+    if (ptr2 || ptr3 || ptr4){
+
+    }
 
     print("Kernel initialization complete.\n");
 
