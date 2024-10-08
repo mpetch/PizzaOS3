@@ -4,10 +4,13 @@
 #include "idt/idt.h"
 #include "io/io.h"
 #include "memory/heap/kheap.h"
+#include "memory/paging/paging.h"
 
 uint16_t* video_mem = 0;
 uint16_t terminal_row = 0;
 uint16_t terminal_col = 0;
+static struct paging_4gb_chunk* kernel_chunk = 0;
+
 
 // ACTUALLY MAKES THE CHAR
 uint16_t terminal_make_char (char c , char color){
@@ -77,27 +80,34 @@ void kernel_main() {
     idt_init();
     print("IDT initialized.\n");
 
-    print("Enabling interrupts...\n");
-    enable_interrupts();
-    print("Interrupts enabled.\n");
 
-    void* ptr1 = kmalloc(50);
-    void* ptr2 = kmalloc(5000);
-    void* ptr3 = kmalloc(5600);
-    if(ptr1){}
-    kfree(ptr1);
-    void* ptr4 = kmalloc(50);
-    if (ptr2 || ptr3 || ptr4){
+    // void* ptr1 = kmalloc(50);
+    // void* ptr2 = kmalloc(5000);
+    // void* ptr3 = kmalloc(5600);
+    // if(ptr1){}
+    // kfree(ptr1);
+    // void* ptr4 = kmalloc(50);
+    // if (ptr2 || ptr3 || ptr4){
 
-    }
+    // }
 // gdb
 // add-symbol-file ./build/kernelfull.o 0x100000
 // target remote | qemu-system-i386 -hda ./bin/os.bin -S -gdb stdio
 // break kernel.c : 90
 //continue
 
+        // Setup paging
+    kernel_chunk = paging_new_4gb(PAGING_IS_WRITEABLE | PAGING_IS_PRESENT | PAGING_ACCESS_FROM_ALL);
 
+     // Switch to kernel paging chunk
+    paging_switch(paging_4gb_chunk_get_directory(kernel_chunk));
+    // Enable paging
+    enable_paging();
 
-    //print("Kernel initialization complete.\n");
+    print("Enabling interrupts...\n");
+    enable_interrupts();
+    print("Interrupts enabled.\n");
+
+    print("Kernel initialization complete.\n");
 
 }
