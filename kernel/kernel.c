@@ -64,6 +64,8 @@ void print(const char* str){
         terminal_writechar(str[i], 15);
 }
 
+
+
 // MAIN FUNCTION (CALLED BY KERNEL.ASM)
 void kernel_main() {
     terminal_initialize();
@@ -88,7 +90,14 @@ void kernel_main() {
     if (ptr2 || ptr3 || ptr4){
 
     }
+// gdb
+// add-symbol-file ./build/kernelfull.o 0x100000
+// target remote | qemu-system-i386 -hda ./bin/os.bin -S -gdb stdio
+// break kernel.c : 90
+//continue
 
-    print("Kernel initialization complete.\n");
+
+
+    //print("Kernel initialization complete.\n");
 
 }
