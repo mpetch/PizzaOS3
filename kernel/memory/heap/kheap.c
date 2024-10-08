@@ -21,3 +21,8 @@ void kheap_init() {
     }
     
 }
+
+void* kmalloc ( size_t size)
+{
+    return heap_malloc (&kernel_heap , size);
+}
