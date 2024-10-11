@@ -77,6 +77,7 @@ void kernel_main() {
     
     kheap_init();
 
+    disk_search_and_init();
     print("Initializing IDT...\n");
     idt_init();
     print("IDT initialized.\n");
@@ -106,8 +107,6 @@ void kernel_main() {
     // Enable paging
     enable_paging();
 
-    char buf[512];
-    disk_read_sector(0, 1, buf);
 
 
     print("Enabling interrupts...\n");
