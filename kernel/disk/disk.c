@@ -38,6 +38,8 @@ void disk_search_and_init(){
     disk.type = PIZZAOS_DISK_TYPE_REAL;
     disk.sector_size = PIZZAOS_SECTOR_TYPE;
     disk.filesystem = fs_resolve(&disk);
+    disk.id = 0;
+
 } 
 
 struct disk* disk_get(int index)

@@ -12,6 +12,8 @@ struct  disk
     PIZZAOS_DISK_TYPE type;
     int sector_size;
     struct filesystem* filesystem;
+    void* fs_private;
+    int id;
 };
 
 
