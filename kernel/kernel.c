@@ -9,6 +9,8 @@
 #include "fs/pparser.h"
 #include "string/string.h"
 #include "disk/streamer.h"
+#include "fs/file.h"
+
 
 uint16_t* video_mem = 0;
 uint16_t terminal_row = 0;
@@ -72,6 +74,8 @@ void kernel_main() {
     print("Hello World \n This is my os \n");
     
     kheap_init();
+
+    fs_init();
 
     disk_search_and_init();
     print("Initializing IDT...\n");
