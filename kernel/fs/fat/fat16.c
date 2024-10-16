@@ -587,8 +587,7 @@ struct fat_item* fat16_get_directory_entry(struct disk* disk, struct path_part* 
 {
     struct fat_private* fat_private = disk->fs_private;
     struct fat_item* current_item = 0;
-    struct fat_item* root_item 
-            = fat16_find_item_in_directory(disk, &fat_private->root_directory, path->part);
+    struct fat_item* root_item  = fat16_find_item_in_directory(disk, &fat_private->root_directory, path->part);
     if (!root_item)
     {
         goto out;
