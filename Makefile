@@ -1,24 +1,26 @@
 FILES = ./build/kernel.asm.o ./build/kernel.o ./build/idt/idt.asm.o ./build/idt/idt.o ./build/memory/memory.o ./build/io/io.asm.o ./build/memory/heap/heap.o ./build/memory/heap/kheap.o ./build/memory/paging/paging.o ./build/memory/paging/paging.asm.o  ./build/disk/disk.o ./build/fs/pparser.o ./build/string/string.o ./build/disk/streamer.o ./build/fs/file.o ./build/fs/fat/fat16.o
 INCLUDES = -I./kernel/
-FLAGS = -g -ffreestanding -falign-jumps -falign-loops -falign-functions -falign-labels -fstrength-reduce -fomit-frame-pointer -finline-functions -Wno-unused-function -fno-builtin -Werror -Wno-unused-label -Wno-unused-parameter -nostdlib -nostartfiles -nodefaultlibs -Wall -O0	 -Iinc
+FLAGS = -g -ffreestanding -falign-jumps -falign-loops -falign-functions -falign-labels -fstrength-reduce -fomit-frame-pointer -finline-functions -Wno-unused-function -fno-builtin -Werror -Wno-unused-label -Wno-unused-parameter -nostdlib -nostartfiles -nodefaultlibs -Wall -O0 -Iinc -fno-pic
 
-all: ./bin/boot.bin ./bin/kernel.bin 
+all: createdirs ./bin/boot.bin ./bin/kernel.bin
 	rm -rf ./bin/os.bin
 	dd if=./bin/boot.bin >> ./bin/os.bin
-	dd if=./bin/kernel.bin >> ./bin/os.bin 
+	dd if=./bin/kernel.bin >> ./bin/os.bin
 	dd if=/dev/zero bs=1048576 count=16 >> ./bin/os.bin
-	sudo mount -t vfat ./bin/os.bin /mnt/d
+	sudo mount -t vfat ./bin/os.bin mnt
 	# Copy a file over
-	sudo cp ./hello.txt /mnt/d
-	sudo umount /mnt/d
+	sudo cp ./hello.txt mnt
+	sudo umount mnt
 
 ./bin/boot.bin: ./boot/boot.asm
 	nasm -f bin -o ./bin/boot.bin ./boot/boot.asm
 
-#linker is to link all the object files into a single binary file
-./bin/kernel.bin: $(FILES)
-	i686-elf-ld -g -relocatable $(FILES) -o ./build/kernelfull.o 
-	i686-elf-gcc $(FLAGS) -T ./linker/linker.ld -o ./bin/kernel.bin -ffreestanding -O0 -nostdlib ./build/kernelfull.o
+#Link all the object files into a single ELF file
+./bin/kernel.elf: $(FILES)
+	i686-elf-gcc -T ./linker/linker.ld -o $@ -nostdlib -no-pie $^
+
+./bin/kernel.bin: ./bin/kernel.elf
+	i686-elf-objcopy -O binary $< $@
 
 ./build/kernel.asm.o: ./kernel/kernel.asm
 	nasm -f elf32 -g -o ./build/kernel.asm.o ./kernel/kernel.asm
@@ -68,8 +70,23 @@ all: ./bin/boot.bin ./bin/kernel.bin
 ./build/fs/fat/fat16.o: ./kernel/fs/fat/fat16.c
 	i686-elf-gcc $(INCLUDES) -I./kernel/fat/fs -I./kernel/fat $(FLAGS) -std=gnu99 -c ./kernel/fs/fat/fat16.c -o ./build/fs/fat/fat16.o
 
+createdirs:
+	mkdir -p ./mnt/
+	mkdir -p ./bin/
+	mkdir -p ./build/
+	mkdir -p ./build/idt/
+	mkdir -p ./build/io/
+	mkdir -p ./build/memory/
+	mkdir -p ./build/memory/heap
+	mkdir -p ./build/memory/paging
+	mkdir -p ./build/disk
+	mkdir -p ./build/string
+	mkdir -p ./build/fs
+	mkdir -p ./build/fs/fat
+
 clean:
 	rm -rf ./bin/*.bin
+	rm -rf ./bin/*.elf
 	rm -rf ./build/*.o
 	rm -rf ./build/idt/*.o
 	rm -rf ./build/io/*.o
