@@ -117,7 +117,7 @@ void kernel_main() {
         print("File hello.txt opened\n");
     }
 
-    while(1) {}
     print("Kernel initialization complete.\n");
+    while(1) {}
 
 }
