@@ -115,6 +115,11 @@ void kernel_main() {
 
     if (fd) {
         print("File hello.txt opened\n");
+        char buf[14];
+        fread(buf,13,1,fd);
+        buf[13]=0x00;
+        print(buf);
+        print("\n");
     }
 
     print("Kernel initialization complete.\n");
