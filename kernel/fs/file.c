@@ -1,13 +1,12 @@
 #include "file.h"
-#include "../config.h"
-#include "../memory/memory.h"
-#include "../memory/heap/kheap.h"
-#include "../status.h"
-#include "../kernel.h"
+#include "config.h"
+#include "memory/memory.h"
+#include "memory/heap/kheap.h"
+#include "string/string.h"
+#include "disk/disk.h"
 #include "fat/fat16.h"
-#include "../disk/disk.h"
-#include "../string/string.h"
-
+#include "status.h"
+#include "kernel.h"
 struct filesystem* filesystems[PIZZAOS_MAX_FILESYSTEMS];
 struct file_descriptor* file_descriptors[PIZZAOS_MAX_FILE_DESCRIPTORS];
 
@@ -21,7 +20,8 @@ static struct filesystem** fs_get_free_filesystem()
             return &filesystems[i];
         }
     }
-    return 0; 
+
+    return 0;
 }
 
 void fs_insert_filesystem(struct filesystem* filesystem)
@@ -33,6 +33,7 @@ void fs_insert_filesystem(struct filesystem* filesystem)
         print("Problem inserting filesystem"); 
         while(1) {}
     }
+
     *fs = filesystem;
 }
 
@@ -69,6 +70,7 @@ static int file_new_descriptor(struct file_descriptor** desc_out)
             break;
         }
     }
+
     return res;
 }
 
@@ -78,6 +80,7 @@ static struct file_descriptor* file_get_descriptor(int fd)
     {
         return 0;
     }
+
     // Descriptors start at 1
     int index = fd - 1;
     return file_descriptors[index];
@@ -94,6 +97,7 @@ struct filesystem* fs_resolve(struct disk* disk)
             break;
         }
     }
+
     return fs;
 }
 
@@ -119,7 +123,6 @@ int fopen(const char* filename, const char* mode_str)
 {
     int res = 0;
     struct path_root* root_path = pathparser_parse(filename, NULL);
-
     if (!root_path)
     {
         res = -EINVARG;
@@ -135,7 +138,6 @@ int fopen(const char* filename, const char* mode_str)
 
     // Ensure the disk we are reading from exists
     struct disk* disk = disk_get(root_path->drive_no);
-
     if (!disk)
     {
         res = -EIO;
@@ -149,7 +151,6 @@ int fopen(const char* filename, const char* mode_str)
     }
 
     FILE_MODE mode = file_get_mode_by_string(mode_str);
-
     if (mode == FILE_MODE_INVALID)
     {
         res = -EINVARG;
@@ -157,7 +158,6 @@ int fopen(const char* filename, const char* mode_str)
     }
 
     void* descriptor_private_data = disk->filesystem->open(disk, root_path->first, mode);
-
     if (ISERR(descriptor_private_data))
     {
         res = ERROR_I(descriptor_private_data);
@@ -165,22 +165,20 @@ int fopen(const char* filename, const char* mode_str)
     }
 
     struct file_descriptor* desc = 0;
-
     res = file_new_descriptor(&desc);
-
     if (res < 0)
     {
         goto out;
     }
-
     desc->filesystem = disk->filesystem;
     desc->private = descriptor_private_data;
     desc->disk = disk;
     res = desc->index;
-    
+
 out:
     // fopen shouldnt return negative values
     if (res < 0)
         res = 0;
+
     return res;
 }

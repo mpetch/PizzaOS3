@@ -107,17 +107,17 @@ void kernel_main() {
     // Enable paging
     enable_paging();
 
-
-
     print("Enabling interrupts...\n");
     enable_interrupts();
     print("Interrupts enabled.\n");
 
-    struct disk_stream* stream = diskstreamer_new(0);
-    diskstreamer_seek(stream, 0x201);
-    unsigned char c = 0;
-    diskstreamer_read(stream, &c, 1);
-    while(1) {}
+    int fd = fopen("0:/hello.txt", "r");
+
+    if (fd) {
+        print("File hello.txt opened\n");
+    }
+
     print("Kernel initialization complete.\n");
+    while(1) {}
 
 }
