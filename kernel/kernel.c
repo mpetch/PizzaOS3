@@ -121,6 +121,10 @@ void kernel_main() {
         buf[13]=0x00;
         print(buf);
         print("\n");
+
+        struct file_stat s;
+        fstat(fd, &s);
+        
     }
 
     print("Kernel initialization complete.\n");
