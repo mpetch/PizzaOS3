@@ -28,7 +28,7 @@ void idt_zero(){
 void idt_set(int interrupt_no , void* addr){
     struct idt_desc* desc = &idt_descriptors[interrupt_no];
     desc->offset_1 = (uint32_t)addr & 0x0000FFFF;
-    desc->selector = KERNEL_CODE_SEGMENT;
+    desc->selector = KERNEL_CODE_SELECTOR;
     desc->zero = 0x00;
     desc->type_attr = 0x8E;
     desc->offset_2 = (uint32_t)addr >> 16;
