@@ -1,8 +1,8 @@
-FILES = ./build/kernel.asm.o ./build/kernel.o ./build/idt/idt.asm.o ./build/idt/idt.o ./build/memory/memory.o ./build/io/io.asm.o ./build/gdt/gdt.o ./build/gdt/gdt.asm.o ./build/memory/heap/heap.o ./build/memory/heap/kheap.o ./build/memory/paging/paging.o ./build/memory/paging/paging.asm.o  ./build/disk/disk.o ./build/fs/pparser.o ./build/string/string.o ./build/disk/streamer.o ./build/fs/file.o ./build/fs/fat/fat16.o
+FILES = ./build/kernel.asm.o ./build/kernel.o ./build/idt/idt.asm.o ./build/idt/idt.o ./build/memory/memory.o ./build/io/io.asm.o ./build/gdt/gdt.o ./build/gdt/gdt.asm.o  ./build/task/task.o ./build/task/task.asm.o ./build/task/tss.asm.o ./build/task/process.o ./build/memory/heap/heap.o ./build/memory/heap/kheap.o ./build/memory/paging/paging.o ./build/memory/paging/paging.asm.o  ./build/disk/disk.o ./build/fs/pparser.o ./build/string/string.o ./build/disk/streamer.o ./build/fs/file.o ./build/fs/fat/fat16.o
 INCLUDES = -I./kernel/
 FLAGS = -g -ffreestanding -falign-jumps -falign-loops -falign-functions -falign-labels -fstrength-reduce -fomit-frame-pointer -finline-functions -Wno-unused-function -fno-builtin -Werror -Wno-unused-label -Wno-unused-parameter -nostdlib -nostartfiles -nodefaultlibs -Wall -O0 -Iinc -fno-pic
 
-all: createdirs ./bin/boot.bin ./bin/kernel.bin
+all: createdirs ./bin/boot.bin ./bin/kernel.bin user_programs
 	rm -rf ./bin/os.bin
 	dd if=./bin/boot.bin >> ./bin/os.bin
 	dd if=./bin/kernel.bin >> ./bin/os.bin
@@ -10,6 +10,7 @@ all: createdirs ./bin/boot.bin ./bin/kernel.bin
 	sudo mount -t vfat ./bin/os.bin mnt
 	# Copy a file over
 	sudo cp ./hello.txt mnt
+	sudo cp ./programs/blank/blank.bin mnt
 	sudo umount mnt
 
 ./bin/boot.bin: ./boot/boot.asm
@@ -76,9 +77,21 @@ all: createdirs ./bin/boot.bin ./bin/kernel.bin
 ./build/gdt/gdt.asm.o: ./kernel/gdt/gdt.asm
 	nasm -f elf -g ./kernel/gdt/gdt.asm -o ./build/gdt/gdt.asm.o
 
+./build/task/task.o: ./kernel/task/task.c
+	i686-elf-gcc $(INCLUDES) -I./kernel/task $(FLAGS) -std=gnu99 -c ./kernel/task/task.c -o ./build/task/task.o
+
+./build/task/task.asm.o: ./kernel/task/task.asm
+	nasm -f elf -g ./kernel/task/task.asm -o ./build/task/task.asm.o
 
 ./build/task/tss.asm.o: ./kernel/task/tss.asm
 	nasm -f elf -g ./kernel/task/tss.asm -o ./build/task/tss.asm.o
+
+./build/task/process.o: ./kernel/task/process.c
+	i686-elf-gcc $(INCLUDES) -I./kernel/task $(FLAGS) -std=gnu99 -c ./kernel/task/process.c -o ./build/task/process.o
+
+user_programs:
+	cd ./programs/blank && $(MAKE) all
+
 
 createdirs:
 	mkdir -p ./mnt/
@@ -96,7 +109,7 @@ createdirs:
 	mkdir -p ./build/gdt
 	mkdir -p ./build/task
 
-clean:
+clean: user_programs_clean
 	rm -rf ./bin/*.bin
 	rm -rf ./bin/*.elf
 	rm -rf ./build/*.o
@@ -111,3 +124,6 @@ clean:
 	rm -rf ./build/fs/fat/*.o
 	rm -rf ./build/gdt/*.o
 	rm -rf ./build/task/*.o
+
+user_programs_clean:
+	cd ./programs/blank && $(MAKE) clean
