@@ -4,12 +4,15 @@
 #include "idt/idt.h"
 #include "io/io.h"
 #include "memory/heap/kheap.h"
+#include "memory/memory.h"
 #include "memory/paging/paging.h"
 #include "disk/disk.h"
 #include "fs/pparser.h"
 #include "string/string.h"
 #include "disk/streamer.h"
 #include "fs/file.h"
+#include "gdt/gdt.h"
+#include "config.h"
 
 
 uint16_t* video_mem = 0;
@@ -72,12 +75,24 @@ void panic (const char* msg)
     while (1) {}
 }
 
+struct gdt gdt_real[PIZZAOS_TOTAL_GDT_SEGMENTS];
+
+struct gdt_structured gdt_structured[PIZZAOS_TOTAL_GDT_SEGMENTS] = {
+    {.base = 0x00, .limit = 0x00, .type = 0x00},                // NULL Segment
+    {.base = 0x00, .limit = 0xffffffff, .type = 0x9a},           // Kernel code segment
+    {.base = 0x00, .limit = 0xffffffff, .type = 0x92}            // Kernel data segment
+};
 
 // MAIN FUNCTION (CALLED BY KERNEL.ASM)
 void kernel_main() {
     terminal_initialize();
     print("Hello World \n This is my os \n");
     
+    memset(gdt_real, 0x00, sizeof(gdt_real));
+    gdt_structured_to_gdt(gdt_real, gdt_structured, PIZZAOS_TOTAL_GDT_SEGMENTS);
+    // Load the gdt
+    gdt_load(gdt_real, sizeof(gdt_real));
+
     kheap_init();
 
     fs_init();
