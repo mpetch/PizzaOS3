@@ -11,6 +11,7 @@
 #include "string/string.h"
 #include "disk/streamer.h"
 #include "fs/file.h"
+#include "task/tss.h"
 #include "gdt/gdt.h"
 #include "config.h"
 
@@ -75,12 +76,16 @@ void panic (const char* msg)
     while (1) {}
 }
 
+struct tss tss;
 struct gdt gdt_real[PIZZAOS_TOTAL_GDT_SEGMENTS];
 
 struct gdt_structured gdt_structured[PIZZAOS_TOTAL_GDT_SEGMENTS] = {
     {.base = 0x00, .limit = 0x00, .type = 0x00},                // NULL Segment
     {.base = 0x00, .limit = 0xffffffff, .type = 0x9a},           // Kernel code segment
-    {.base = 0x00, .limit = 0xffffffff, .type = 0x92}            // Kernel data segment
+    {.base = 0x00, .limit = 0xffffffff, .type = 0x92},            // Kernel data segment
+    {.base = 0x00, .limit = 0xffffffff, .type = 0xf8},              // User code segment
+    {.base = 0x00, .limit = 0xffffffff, .type = 0xf2},             // User data segment
+    {.base = (uint32_t)&tss, .limit=sizeof(tss), .type = 0xE9}      // TSS Segment
 };
 
 // MAIN FUNCTION (CALLED BY KERNEL.ASM)
@@ -101,6 +106,13 @@ void kernel_main() {
     print("Initializing IDT...\n");
     idt_init();
     print("IDT initialized.\n");
+
+    // Setup the TSS
+    memset(&tss, 0x00, sizeof(tss));
+    tss.esp0 = 0x600000;
+    tss.ss0 = KERNEL_DATA_SELECTOR;
+    // Load the TSS
+    tss_load(0x28);
 
 
     // void* ptr1 = kmalloc(50);

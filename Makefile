@@ -76,6 +76,10 @@ all: createdirs ./bin/boot.bin ./bin/kernel.bin
 ./build/gdt/gdt.asm.o: ./kernel/gdt/gdt.asm
 	nasm -f elf -g ./kernel/gdt/gdt.asm -o ./build/gdt/gdt.asm.o
 
+
+./build/task/tss.asm.o: ./kernel/task/tss.asm
+	nasm -f elf -g ./kernel/task/tss.asm -o ./build/task/tss.asm.o
+
 createdirs:
 	mkdir -p ./mnt/
 	mkdir -p ./bin/
@@ -90,6 +94,7 @@ createdirs:
 	mkdir -p ./build/fs
 	mkdir -p ./build/fs/fat
 	mkdir -p ./build/gdt
+	mkdir -p ./build/task
 
 clean:
 	rm -rf ./bin/*.bin
@@ -105,3 +110,4 @@ clean:
 	rm -rf ./build/fs/*.o
 	rm -rf ./build/fs/fat/*.o
 	rm -rf ./build/gdt/*.o
+	rm -rf ./build/task/*.o
