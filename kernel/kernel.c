@@ -14,7 +14,9 @@
 #include "task/tss.h"
 #include "gdt/gdt.h"
 #include "config.h"
-
+#include "task/task.h"
+#include "task/process.h"
+#include "status.h"
 
 uint16_t* video_mem = 0;
 uint16_t terminal_row = 0;
@@ -90,77 +92,52 @@ struct gdt_structured gdt_structured[PIZZAOS_TOTAL_GDT_SEGMENTS] = {
 
 // MAIN FUNCTION (CALLED BY KERNEL.ASM)
 void kernel_main() {
-    terminal_initialize();
-    print("Hello World \n This is my os \n");
-    
+     terminal_initialize();
+    print("Hello world!\ntest");
+
     memset(gdt_real, 0x00, sizeof(gdt_real));
     gdt_structured_to_gdt(gdt_real, gdt_structured, PIZZAOS_TOTAL_GDT_SEGMENTS);
+
     // Load the gdt
     gdt_load(gdt_real, sizeof(gdt_real));
 
+    // Initialize the heap
     kheap_init();
 
+    // Initialize filesystems
     fs_init();
 
+    // Search and initialize the disks
     disk_search_and_init();
-    print("Initializing IDT...\n");
+
+    // Initialize the interrupt descriptor table
     idt_init();
-    print("IDT initialized.\n");
 
     // Setup the TSS
     memset(&tss, 0x00, sizeof(tss));
     tss.esp0 = 0x600000;
     tss.ss0 = KERNEL_DATA_SELECTOR;
+
     // Load the TSS
     tss_load(0x28);
 
-
-    // void* ptr1 = kmalloc(50);
-    // void* ptr2 = kmalloc(5000);
-    // void* ptr3 = kmalloc(5600);
-    // if(ptr1){}
-    // kfree(ptr1);
-    // void* ptr4 = kmalloc(50);
-    // if (ptr2 || ptr3 || ptr4){
-
-    // }
-// gdb
-// add-symbol-file ./build/kernelfull.o 0x100000
-// target remote | qemu-system-i386 -hda ./bin/os.bin -S -gdb stdio
-// break kernel.c : 90
-//continue
-
-        // Setup paging
+    // Setup paging
     kernel_chunk = paging_new_4gb(PAGING_IS_WRITEABLE | PAGING_IS_PRESENT | PAGING_ACCESS_FROM_ALL);
-
-     // Switch to kernel paging chunk
+    
+    // Switch to kernel paging chunk
     paging_switch(paging_4gb_chunk_get_directory(kernel_chunk));
 
     // Enable paging
     enable_paging();
 
-    print("Enabling interrupts...\n");
-    enable_interrupts();
-    print("Interrupts enabled.\n");
-
-    int fd = fopen("0:/hello.txt", "r");
-
-    if (fd) {
-        print("File hello.txt opened\n");
-        char buf[14];
-        fseek(fd , 2, SEEK_SET);
-        fread(buf,11,1,fd);
-        buf[13]=0x00;
-        print(buf);
-        print("\n");
-
-        struct file_stat s;
-        fstat(fd, &s);
-        fclose(fd);
-        print("\nss");
+    struct process* process = 0;
+    int res = process_load("0:/blank.bin", &process);
+    if (res != PIZZAOS_ALL_OK)
+    {
+        panic("Failed to load blank.bin\n");
     }
 
-    print("Kernel initialization complete.\n");
-    while(1) {}
+    task_run_first_ever_task();
 
+    while(1) {}
 }
