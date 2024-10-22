@@ -2,6 +2,7 @@
 BITS 32
 
 global _start
+global kernel_registers
 extern kernel_main
 
 %define CODE_SEG 0x08
@@ -46,6 +47,15 @@ _start:
 
     jmp $                   ; Hang
 
+
+kernel_registers:
+    mov ax, 10
+    mov ds, ax
+    mov es, ax
+    mov gs, ax
+    mov fs, ax
+    ret
+
 print_string_pm:
     pusha
     mov edx, 0xb8000 + 160  ; Start on the second line
@@ -62,6 +72,9 @@ print_string_pm:
     ret
 
 msg_pm: db "Now in 32-bit Protected Mode!", 0
+
+
+
 
 
 times 512 - ($ - $$) db 0
