@@ -1,4 +1,4 @@
-FILES = ./build/kernel.asm.o ./build/kernel.o ./build/idt/idt.asm.o ./build/idt/idt.o ./build/memory/memory.o ./build/io/io.asm.o ./build/gdt/gdt.o ./build/gdt/gdt.asm.o  ./build/task/task.o ./build/task/task.asm.o ./build/task/tss.asm.o ./build/task/process.o ./build/memory/heap/heap.o ./build/memory/heap/kheap.o ./build/memory/paging/paging.o ./build/memory/paging/paging.asm.o  ./build/disk/disk.o ./build/fs/pparser.o ./build/string/string.o ./build/disk/streamer.o ./build/fs/file.o ./build/fs/fat/fat16.o
+FILES = ./build/kernel.asm.o ./build/kernel.o ./build/idt/idt.asm.o ./build/idt/idt.o ./build/memory/memory.o ./build/io/io.asm.o ./build/gdt/gdt.o ./build/gdt/gdt.asm.o  ./build/task/task.o ./build/task/task.asm.o ./build/task/tss.asm.o ./build/task/process.o ./build/memory/heap/heap.o ./build/memory/heap/kheap.o ./build/memory/paging/paging.o ./build/memory/paging/paging.asm.o  ./build/disk/disk.o ./build/fs/pparser.o ./build/string/string.o ./build/disk/streamer.o ./build/fs/file.o ./build/fs/fat/fat16.o ./build/isr80h/isr80h.o  ./build/isr80h/misc.o
 INCLUDES = -I./kernel/
 FLAGS = -g -ffreestanding -falign-jumps -falign-loops -falign-functions -falign-labels -fstrength-reduce -fomit-frame-pointer -finline-functions -Wno-unused-function -fno-builtin -Werror -Wno-unused-label -Wno-unused-parameter -nostdlib -nostartfiles -nodefaultlibs -Wall -O0 -Iinc -fno-pic
 
@@ -89,6 +89,12 @@ all: createdirs ./bin/boot.bin ./bin/kernel.bin user_programs
 ./build/task/process.o: ./kernel/task/process.c
 	i686-elf-gcc $(INCLUDES) -I./kernel/task $(FLAGS) -std=gnu99 -c ./kernel/task/process.c -o ./build/task/process.o
 
+./build/isr80h/isr80h.o: ./kernel/isr80h/isr80h.c
+	i686-elf-gcc $(INCLUDES) -I./kernel/isr80h $(FLAGS) -std=gnu99 -c ./kernel/isr80h/isr80h.c -o ./build/isr80h/isr80h.o
+	
+./build/isr80h/misc.o: ./kernel/isr80h/misc.c
+	i686-elf-gcc $(INCLUDES) -I./kernel/isr80h $(FLAGS) -std=gnu99 -c ./kernel/isr80h/misc.c -o ./build/isr80h/misc.o
+
 user_programs:
 	cd ./programs/blank && $(MAKE) all
 
@@ -108,6 +114,7 @@ createdirs:
 	mkdir -p ./build/fs/fat
 	mkdir -p ./build/gdt
 	mkdir -p ./build/task
+	mkdir -p ./build/isr80h
 
 clean: user_programs_clean
 	rm -rf ./bin/*.bin
